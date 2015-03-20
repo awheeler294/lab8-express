@@ -1,0 +1,13 @@
+.weatherForm {
+	padding-top: 30px;
+	padding-bottom: 4px;
+}
+
+#weatherUndergroundLogo {
+	height: 50px;
+	width: 365px;
+}
+
+.hintArea {
+	padding-bottom: 11px;
+}

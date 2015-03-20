@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>City Weather</title>
+	<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+	<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet">
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="css/normalize.css">
+	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="css/jweather.css">
+</head>
+<body>
+	<div id="wrap">
+		
+		<div id="header">
+            <h1>Weather</h1>
+        </div>
+
+        <div id="mainContent">
+	        <div class="weatherForm">
+				<form class="form-inline">
+					<div class="form-group">
+						<label for="cityField">Enter a Utah City:</label>
+						<input type="text" class="form-control" id="cityField">
+					</div>
+					<input id="submitButton" type="submit" value="Submit" class="btn btn-default">		
+				</form>
+			</div>
+			
+			<div class="hintArea">
+				<label for="textHint">Suggestions:</label>
+				<span id="textHint">Empty</span>
+			</div>
+
+			<label for="cityBox">City</label>
+			<br>
+			<textarea id="cityBox">I'm not sure why we're using a text area here, but it's 10% of the grade...</textarea>
+
+			<div class="weatherDiv">
+				<p>Current <span id="dispCity"></span> Weather</p>
+				<div id="weatherArea"> 
+					No Weather
+				</div>
+				<img id="weatherUndergroundLogo" src="img/wundergroundLogo_4c_horz.png" style="display:none;">
+			</div> 
+		</div>
+	</div>
+	<script>
+	$('#submitButton').click(function(e) {
+		e.preventDefault();
+		var cityName = $('#cityField').val();
+		$('#cityBox').val(cityName);
+		$('#dispCity').html(cityName);
+
+		var url= "https://api.wunderground.com/api/5398259c412cd3c8/geolookup/conditions/q/UT/";
+		url += cityName;
+		url += ".json";
+		console.log(url);
+		
+		$.ajax({
+			url : url,
+			dataType : "jsonp",
+			success : function(parsed_json) {
+				$("#textHint").html($('#cityField').val());
+				var location = parsed_json['location']['city'];
+				var temp_string = parsed_json['current_observation']['temperature_string'];
+				var current_weather = parsed_json['current_observation']['weather'];
+				var weather_HTML = "<ul>";
+				weather_HTML += "<li>Location: " + location;
+				weather_HTML += "<li>Temperature: " + temp_string;
+				weather_HTML += "<li>Weather: " + current_weather;
+				weather_HTML += "</ul>";
+				$("#weatherArea").html(weather_HTML);
+				$("#weatherUndergroundLogo").show();
+	    	}
+  		});
+
+	});
+	
+	$("#cityField").keyup(function () {
+		var url = 'http://ec2-52-10-147-160.us-west-2.compute.amazonaws.com/getcity?q=';
+		url += $('#cityField').val();
+		$.getJSON(url, function(data) {
+			var suggestions = '<ul>';
+			$.each(data, function(i, item) {
+				suggestions += '<li>' + data[i].city + '</li>';
+			});
+			suggestions += '</ul>';
+			$('#textHint').html(suggestions);
+		})
+		.fail(function(jqXHR, textStatus, errorThrown) { 
+			console.log('getJSON request failed! ' + textStatus); 
+			console.log("incoming "+jqXHR.responseText);
+		})
+		.always(function() { 
+			console.log('getJSON request ended!');
+		})
+		.complete(function() { 
+			console.log("complete"); 
+		});
+	});
+
+	</script>
+</body>
+</html>
